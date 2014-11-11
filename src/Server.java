@@ -1,4 +1,4 @@
-package com.thecherno.chernochat.server;
+
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -249,6 +249,7 @@ public class Server implements Runnable {
 			message = "Client " + c.name + " (" + c.getID() + ") @ " + c.address.toString() + ":" + c.port + " timed out.";
 		}
 		System.out.println(message);
+		sendToAll("/m/" + c.name + " diconnected".toUpperCase());
 	}
 
 }

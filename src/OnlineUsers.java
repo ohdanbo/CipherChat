@@ -1,4 +1,4 @@
-package com.thecherno.chernochat;
+
 
 import java.awt.Font;
 import java.awt.GridBagConstraints;
