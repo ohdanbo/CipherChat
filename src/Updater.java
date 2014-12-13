@@ -3,6 +3,8 @@ import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 
+import Client.Resources;
+
 
 public class Updater {
 	
