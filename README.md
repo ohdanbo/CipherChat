@@ -1,4 +1,4 @@
-ChernoChat
+CipherChat
 ==========
 
-All of the code for the Cherno Chat project, as well as the code for the individual episodes.
+An encrypted chat client for friends to discuss and share files

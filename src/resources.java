@@ -5,22 +5,25 @@ import java.awt.GraphicsEnvironment;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
 
-public class resources {
-	static Font font = null;
+public class Resources {
+	public static int versionID = 1;
+	private static Font font = null;
 	
-	public resources() {
+	public Resources() {
+		
+	}
+	
+	public static Font font() {
 		try {
-			font = Font.createFont(Font.TRUETYPE_FONT,getClass().getResource("montserrat.ttf").openStream());
+			font = Font.createFont(Font.TRUETYPE_FONT,Resources.class.getResource("montserrat.ttf").openStream());
 			GraphicsEnvironment genv = GraphicsEnvironment
 					.getLocalGraphicsEnvironment();
 			genv.registerFont(font);
 			font = font.deriveFont(9.49f);
+			return font;
 		} catch (Exception ex) {
 		}
-	}
-
-	public static Font getFont() {
-		return font;
+		return null;
 	}
 
 	public static class Uppercase extends DocumentFilter {

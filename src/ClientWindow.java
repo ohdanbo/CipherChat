@@ -1,5 +1,3 @@
-
-
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -34,17 +32,14 @@ public class ClientWindow extends JFrame implements Runnable {
 	private DefaultCaret caret;
 	private Thread run, listen;
 	private Client client;
-
 	private boolean running = false;
 	private JMenuBar menuBar;
 	private JMenu mnFile;
 	private JMenuItem mntmOnlineUsers;
 	private JMenuItem mntmExit;
 	private JList list;
-
 	private String username, messageContents;
 	private int mouseX, mouseY;
-	
 	private OnlineUsers users;
 
 	public ClientWindow(String name, String address, int port) {
@@ -140,7 +135,6 @@ public class ClientWindow extends JFrame implements Runnable {
 		});
 		dragFrame.addMouseListener(new MouseListener() {
 			public void mouseClicked(MouseEvent e) {
-				System.out.println("X: " + e.getX() + " Y: " + e.getY());
 			}
 			public void mouseEntered(MouseEvent arg0) {
 			}
@@ -157,7 +151,7 @@ public class ClientWindow extends JFrame implements Runnable {
 		
 		list = new JList();
 		list.setBounds(780,73,500,100);
-		list.setFont(resources.getFont());
+		list.setFont(Resources.font());
 		list.setForeground(Color.WHITE);
 		list.setBackground(Color.GREEN);
 		JScrollPane p = new JScrollPane();
@@ -167,7 +161,7 @@ public class ClientWindow extends JFrame implements Runnable {
 		JLabel usersOnline = new JLabel();
 		usersOnline.setBounds(780,60,500,25);
 		usersOnline.setForeground(Color.GREEN);
-		usersOnline.setFont(resources.getFont());
+		usersOnline.setFont(Resources.font());
 		usersOnline.setText("- Danbo".toUpperCase());
 		contentPane.add(usersOnline);
 		
@@ -183,14 +177,14 @@ public class ClientWindow extends JFrame implements Runnable {
 		history.setFocusable(false);
 		DefaultCaret caret = (DefaultCaret) history.getCaret();
 		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
-		history.setFont(resources.getFont());
+		history.setFont(Resources.font());
 		JScrollPane jsp = new JScrollPane(history);
 		jsp.getViewport().setBackground(Color.BLACK);
 		jsp.setBorder(BorderFactory.createEmptyBorder());
 		jsp.setBounds(11,50,750,422);
 		contentPane.add(jsp);
 		
-		DocumentFilter filter = new resources.Uppercase();
+		DocumentFilter filter = new Resources.Uppercase();
 		txtMessage = new JTextField();
 		((AbstractDocument) txtMessage.getDocument()).setDocumentFilter(filter);
 		txtMessage.setBounds(34,491,725,30);
@@ -200,7 +194,7 @@ public class ClientWindow extends JFrame implements Runnable {
 		txtMessage.setCaretColor(Color.BLACK);
 		txtMessage.setFocusable(true);
 		txtMessage.requestFocus();
-		txtMessage.setFont(resources.getFont());
+		txtMessage.setFont(Resources.font());
 		txtMessage.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				send(txtMessage.getText(), true);

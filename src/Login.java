@@ -70,17 +70,17 @@ public class Login extends JFrame implements ActionListener {
 		username = new JLabel("Username: ".toUpperCase());
 		username.setBounds(12, 10, 273, 25);
 		username.setForeground(Color.GREEN);
-		username.setFont(resources.getFont());
+		username.setFont(Resources.font());
 		panel.add(username);
 
 		address = new JLabel("Address: ".toUpperCase());
 		address.setBounds(12,40, 273, 25);
 		address.setForeground(Color.GREEN);
-		address.setFont(resources.getFont());
+		address.setFont(Resources.font());
 		panel.add(address);
 		
 		
-		DocumentFilter filter = new resources.Uppercase();
+		DocumentFilter filter = new Resources.Uppercase();
 		
 		userField = new JTextField();
 		((AbstractDocument) userField.getDocument()).setDocumentFilter(filter);
@@ -88,7 +88,7 @@ public class Login extends JFrame implements ActionListener {
 		userField.setForeground(Color.GREEN);
 		userField.setBorder(null);
 		userField.addActionListener(this);
-		userField.setFont(resources.getFont());
+		userField.setFont(Resources.font());
 		userField.setCaretColor(Color.BLACK);
 		userField.setBounds(90,10,175,25);
 		userField.requestFocus();
@@ -100,7 +100,7 @@ public class Login extends JFrame implements ActionListener {
 		addressField.setForeground(Color.GREEN);
 		addressField.setBorder(null);
 		addressField.addActionListener(this);
-		addressField.setFont(resources.getFont());
+		addressField.setFont(Resources.font());
 		addressField.setCaretColor(Color.BLACK);
 		addressField.setBounds(90,40,175,25);
 		addressField.requestFocus();
