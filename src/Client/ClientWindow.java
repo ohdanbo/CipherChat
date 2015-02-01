@@ -6,23 +6,23 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.Arrays;
 
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
-import javax.swing.text.AbstractDocument;
 import javax.swing.text.DefaultCaret;
 import javax.swing.text.DocumentFilter;
 
@@ -32,28 +32,29 @@ public class ClientWindow extends JFrame implements Runnable {
 	private JPanel contentPane;
 	private JTextField txtMessage;
 	private JTextArea history;
-	private DefaultCaret caret;
 	private Thread run, listen;
 	private Client client;
 	private boolean running = false;
-	private JMenuBar menuBar;
-	private JMenu mnFile;
-	private JMenuItem mntmOnlineUsers;
-	private JMenuItem mntmExit;
 	private JList list, usersOnline;
-	private String username, messageContents;
-	private int mouseX, mouseY;
 	private OnlineUsers users;
+	private int mouseX, mouseY;
+	
+	private String clientName;
 
 	public ClientWindow(String name, String address, int port) {
+		clientName = name;
 		client = new Client(name, address, port);
 		boolean connect = client.openConnection(address);
 		if (!connect) {
 			System.err.println("Connection failed!");
 			console("Connection failed!");
 		}
-		createWindow();
-		console(("Attempting a connection to " + address + ":" + port + ", user: " + name).toUpperCase());
+		if(System.getProperty("os.name").contains("Windows")) {
+			createWindow();
+		} else {
+			createLinuxWindow();
+		}
+		console(("Attempting a connection to " + address + ":" + port + ", user: " + name));
 		String connection = "/c/" + name + "/e/";
 		client.send(connection.getBytes());
 		users = new OnlineUsers();
@@ -73,6 +74,7 @@ public class ClientWindow extends JFrame implements Runnable {
 		setUndecorated(true);
 		setResizable(false);
 		setLocationRelativeTo(null);
+		setIconImage(new ImageIcon(getClass().getResource("/icon.png")).getImage());
 		setBackground(new Color(0, 0, 0, 0));
 
 		contentPane = new JPanel();
@@ -84,7 +86,7 @@ public class ClientWindow extends JFrame implements Runnable {
 		history = new JTextArea();
 		history.setBounds(11, 50, 750, 400);
 		history.setBackground(Color.BLACK);
-		history.setForeground(Color.GREEN);
+		history.setForeground(Color.WHITE);
 		history.setEditable(false);
 		history.setFocusable(false);
 		DefaultCaret caret = (DefaultCaret) history.getCaret();
@@ -97,7 +99,7 @@ public class ClientWindow extends JFrame implements Runnable {
 		contentPane.add(jsp);
 
 		final JLabel exit = new JLabel();
-		exit.setIcon(new ImageIcon(getClass().getResource("closeBtn.png")));
+		exit.setIcon(new ImageIcon(getClass().getResource("/closeBtn.png")));
 		exit.setSize(25, 24);
 		exit.setForeground(Color.GREEN);
 		exit.setLocation(960 - 10 - 25, 44 / 2 - 25 / 2 + 2);
@@ -125,7 +127,7 @@ public class ClientWindow extends JFrame implements Runnable {
 		contentPane.add(exit);
 
 		final JLabel min = new JLabel();
-		min.setIcon(new ImageIcon(getClass().getResource("minBtn.png")));
+		min.setIcon(new ImageIcon(getClass().getResource("/minBtn.png")));
 		min.setSize(25, 24);
 		min.setForeground(Color.GREEN);
 		min.setLocation(960 - 10 - 25 - 5 - 25, 44 / 2 - 25 / 2 + 2);
@@ -192,7 +194,7 @@ public class ClientWindow extends JFrame implements Runnable {
 		usersOnline = new JList();
 		usersOnline.setBounds(778, 65, 200, 100);
 		usersOnline.setBackground(Color.BLACK);
-		usersOnline.setForeground(Color.GREEN);
+		usersOnline.setForeground(Color.WHITE);
 		usersOnline.setCellRenderer(new DefaultListCellRenderer() {
 
 			public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
@@ -202,26 +204,105 @@ public class ClientWindow extends JFrame implements Runnable {
 			}
 		});
 		usersOnline.setFont(Resources.font());
-		// usersOnline.setText("- Danbo".toUpperCase());
+		// usersOnline.setText("- Danbo");
 		contentPane.add(usersOnline);
 
-		JLabel l = new JLabel(new ImageIcon(getClass().getResource("gui.png")));
+		JLabel l = new JLabel(new ImageIcon(getClass().getResource("/gui.png")));
 		l.setBounds(0, 0, 960, 540);
 		contentPane.add(l);
 
 		DocumentFilter filter = new Resources.Uppercase();
 		txtMessage = new JTextField();
-		((AbstractDocument) txtMessage.getDocument()).setDocumentFilter(filter);
+//		((AbstractDocument) txtMessage.getDocument()).setDocumentFilter(filter);
 		txtMessage.setBounds(34, 495, 725, 30);
-		txtMessage.setForeground(Color.GREEN);
+		txtMessage.setForeground(Color.WHITE);
 		txtMessage.setBackground(Color.BLACK);
 		txtMessage.setBorder(null);
-		txtMessage.setCaretColor(Color.BLACK);
+		txtMessage.setCaretColor(Color.WHITE);
 		txtMessage.setFocusable(true);
 		txtMessage.requestFocus();
 		txtMessage.setFont(Resources.font());
 		txtMessage.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				send(txtMessage.getText(), true);
+			}
+		});
+		contentPane.add(txtMessage);
+
+		setVisible(true);
+
+		txtMessage.requestFocusInWindow();
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void createLinuxWindow() {
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+		setTitle("CipherChat");
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setSize(960, 495);
+		setResizable(false);
+		setLocationRelativeTo(null);
+		//setBackground(new Color(0, 0, 0, 0));
+
+		contentPane = new JPanel();
+		contentPane.setSize(960, 540);
+		contentPane.setOpaque(false);
+		contentPane.setLayout(null);
+		setContentPane(contentPane);
+
+		history = new JTextArea();
+		history.setBounds(11, 50, 750, 400);
+		history.setBackground(Color.WHITE);
+		history.setForeground(Color.BLACK);
+		history.setEditable(false);
+		history.setFocusable(false);
+		DefaultCaret caret = (DefaultCaret) history.getCaret();
+		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+		history.setFont(Resources.font());
+		JScrollPane jsp = new JScrollPane(history);
+		jsp.getViewport().setBackground(Color.WHITE);
+		jsp.setBorder(BorderFactory.createEmptyBorder());
+		jsp.setBounds(5, 5, 750, 422);
+		contentPane.add(jsp);
+
+		list = new JList();
+		list.setBounds(780, 73, 500, 100);
+		list.setFont(Resources.font());
+		list.setForeground(Color.WHITE);
+		list.setBackground(Color.GREEN);
+		JScrollPane p = new JScrollPane();
+		p.setViewportView(list);
+		contentPane.add(p);
+
+		usersOnline = new JList();
+		usersOnline.setBounds(760, 5, 200, 453);
+		usersOnline.setBackground(Color.WHITE);
+		usersOnline.setForeground(Color.BLACK);
+		usersOnline.setCellRenderer(new DefaultListCellRenderer() {
+			private static final long serialVersionUID = 1L;
+			public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+				super.getListCellRendererComponent(list, value, index, false, false);
+
+				return this;
+			}
+		});
+		usersOnline.setFont(Resources.font());
+		contentPane.add(usersOnline);
+
+		txtMessage = new JTextField();
+		txtMessage.setBounds(5, 430, 750, 30);
+		txtMessage.setForeground(Color.BLACK);
+		txtMessage.setBackground(Color.WHITE);
+		txtMessage.setCaretColor(Color.BLACK);
+		txtMessage.setFocusable(true);
+		txtMessage.requestFocus();
+		txtMessage.setFont(Resources.font());
+		txtMessage.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e)  {
 				send(txtMessage.getText(), true);
 			}
 		});
@@ -240,7 +321,7 @@ public class ClientWindow extends JFrame implements Runnable {
 		if (message.startsWith("/")) {
 			switch (message.toLowerCase()) {
 			case "/help":
-				console(("Commands are as follows:" + " \n  /help - Show all available commands" + " \n  /changeusername username - Changes username to whatever you enter" + " \n  /sendfile filename.png - Send file to all online users" + " \n  /whosonline - Shows a list of users online" + " \n  /call username - Voicecall specified user if online" + " \n  /clear - Clears messages" + " \n  /exit - Exit application").toUpperCase());
+				console(("Commands are as follows:" + " \n  /help - Show all available commands" + " \n  /changeusername username - Changes username to whatever you enter" + " \n  /sendfile filename.png - Send file to all online users" + " \n  /whosonline - Shows a list of users online" + " \n  /call username - Voicecall specified user if online" + " \n  /clear - Clears messages" + " \n  /exit - Exit application"));
 				break;
 			case "/exit":
 				String disconnect = "/d/" + client.getID() + "/e/";
@@ -249,13 +330,13 @@ public class ClientWindow extends JFrame implements Runnable {
 				client.close();
 				System.exit(0);
 			case "/changeusername":
-				console("coming soon".toUpperCase());
+				console("coming soon");
 				break;
 			case "/sendfile":
-				console("coming soon".toUpperCase());
+				console("coming soon");
 				break;
 			case "/call":
-				console("coming soon".toUpperCase());
+				console("coming soon");
 				break;
 			case "/clear":
 				history.setText("");
@@ -288,11 +369,12 @@ public class ClientWindow extends JFrame implements Runnable {
 					String message = client.receive();
 					if (message.startsWith("/c/")) {
 						client.setID(Integer.parseInt(message.split("/c/|/e/")[1]));
-						console(("Successfully connected to server! ID: " + client.getID()).toUpperCase());
+						console(("Successfully connected to server! ID: " + client.getID()));
 					} else if (message.startsWith("/m/")) {
 						String text = message.substring(3);
 						text = text.split("/e/")[0];
 						console(text);
+						//playSound("/alert.wav");
 					} else if (message.startsWith("/i/")) {
 						String text = "/i/" + client.getID() + "/e/";
 						send(text, false);
@@ -304,6 +386,17 @@ public class ClientWindow extends JFrame implements Runnable {
 			}
 		};
 		listen.start();
+	}
+	
+	private void playSound(String path) {
+		try {
+			File alert = new File(ClientWindow.class.getResource(path).toURI());
+			Clip clip = AudioSystem.getClip();
+			clip.open(AudioSystem.getAudioInputStream(alert));
+			clip.start();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
 	}
 
 	public void console(String message) {

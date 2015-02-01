@@ -16,7 +16,7 @@ public class Resources {
 	
 	public static Font font() {
 		try {
-			font = Font.createFont(Font.TRUETYPE_FONT,Resources.class.getResource("montserrat.ttf").openStream());
+			font = Font.createFont(Font.TRUETYPE_FONT,Resources.class.getResource("/montserrat.ttf").openStream());
 			GraphicsEnvironment genv = GraphicsEnvironment
 					.getLocalGraphicsEnvironment();
 			genv.registerFont(font);
@@ -26,6 +26,7 @@ public class Resources {
 		}
 		return null;
 	}
+	
 
 	public static class Uppercase extends DocumentFilter {
 	  public void insertString(DocumentFilter.FilterBypass fb, int offset, String text, javax.swing.text.AttributeSet attr) throws BadLocationException {

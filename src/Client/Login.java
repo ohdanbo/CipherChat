@@ -1,145 +1,143 @@
 package Client;
+
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.net.URL;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
-import javax.swing.text.AbstractDocument;
-import javax.swing.text.DocumentFilter;
 
-public class Login extends JFrame implements ActionListener {
+public class Login extends JFrame {
 	private static final long serialVersionUID = 1L;
-	private JLabel username,address;
-	private JTextField userField, addressField;
-	public static String userStr;
-	double version = 1;
-
-	public void checkVersion() throws Exception {
-		URL website = new URL("http://www.ohdanbo.com/cipherchat/version.txt");
-		ReadableByteChannel rbc = Channels.newChannel(website.openStream());
-		FileOutputStream fos = new FileOutputStream("C:\\Users\\Dan\\Desktop\\version.txt");
-		fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
-		fos.close();
-		
-		BufferedReader readFile = new BufferedReader(new FileReader("C:\\Users\\Dan\\Desktop\\version.txt"));
-		int versionStr = readFile.read();
-		System.out.println("version.txt downloaded, string contains" + versionStr);
-		readFile.close();
-		if(versionStr == version) {
-			//JOptionPane.showMessageDialog(null, "Up to date!", "CipherUpdater", JOptionPane.INFORMATION_MESSAGE);
-		} else if (versionStr > version) {
-			if (JOptionPane.showConfirmDialog(null, "New version available! Would you like to download?", "CipherUpdater", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-			    downloadUpdate();
-			} else {
-			    return;
-			}
-		} else {
-			JOptionPane.showMessageDialog(null, "Ahead of remote file", "CipherUpdater", JOptionPane.INFORMATION_MESSAGE);
-		}
-	}
 	
-	public void downloadUpdate() throws Exception {
-		URL website = new URL("http://www.ohdanbo.com/cipherchat/cipherchat.exe");
-		ReadableByteChannel rbc = Channels.newChannel(website.openStream());
-		FileOutputStream fos = new FileOutputStream("C:\\Users\\" + System.getProperty("user.name") + "\\Desktop\\cipherchat.exe");
-		fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
-		fos.close();
-		Runtime.getRuntime().exec("C:\\Users\\" + System.getProperty("user.name") + "\\Desktop\\cipherchat.exe", null, new File("C:\\Users\\" + System.getProperty("user.name") + "\\Desktop\\"));
-		System.exit(0);
-	}
+	private JTextField userField, addressField;
+	private int mouseX, mouseY;
 	
 	public Login() {
-		try {UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());} catch (Exception e1) {e1.printStackTrace();}
-		//try{checkVersion();}catch(Exception e){e.printStackTrace();}
-		JPanel panel = new JPanel();
-		panel.setLayout(null);
-		panel.setSize(279, 75);
-		panel.setBackground(Color.BLACK);
+		try{UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());}catch(Exception ex) {ex.printStackTrace();}
+		JPanel p = new JPanel();
+		p.setSize(280,122);
+		p.setLayout(null);
+		p.setOpaque(false);
 		
-		username = new JLabel("Username: ".toUpperCase());
-		username.setBounds(12, 10, 273, 25);
-		username.setForeground(Color.GREEN);
-		username.setFont(Resources.font());
-		panel.add(username);
-
-		address = new JLabel("Address: ".toUpperCase());
-		address.setBounds(12,40, 273, 25);
-		address.setForeground(Color.GREEN);
-		address.setFont(Resources.font());
-		panel.add(address);
+		JLabel exitbtn = new JLabel(new ImageIcon(getClass().getResource("/exitbutton.png")));
+		exitbtn.setBounds(260,5,15,15);
+		exitbtn.addMouseListener(new MouseListener() {
+			public void mouseReleased(MouseEvent e) {
+			}
+			public void mousePressed(MouseEvent e) {
+			}
+			public void mouseExited(MouseEvent e) {
+			}
+			public void mouseEntered(MouseEvent e) {
+			}
+			public void mouseClicked(MouseEvent e) {
+				System.exit(0);
+			}
+		});
+		p.add(exitbtn);
 		
-		
-		DocumentFilter filter = new Resources.Uppercase();
+		final JLabel dragFrame = new JLabel();
+		dragFrame.setBounds(0, 0, 280, 35);
+		dragFrame.addMouseMotionListener(new MouseMotionListener() {
+			public void mouseDragged(MouseEvent e) {
+				int x = e.getXOnScreen();
+				int y = e.getYOnScreen();
+				setLocation(x - mouseX, y - mouseY);
+			}
+			public void mouseMoved(MouseEvent arg0) {
+			}
+		});
+		dragFrame.addMouseListener(new MouseListener() {
+			public void mouseClicked(MouseEvent e) {
+			}
+			public void mouseEntered(MouseEvent arg0) {
+			}
+			public void mouseExited(MouseEvent arg0) {
+			}
+			public void mousePressed(MouseEvent e) {
+				mouseX = e.getX();
+				mouseY = e.getY();
+			}
+			public void mouseReleased(MouseEvent arg0) {
+			}
+		});
+		p.add(dragFrame);
 		
 		userField = new JTextField();
-		((AbstractDocument) userField.getDocument()).setDocumentFilter(filter);
-		userField.setBackground(Color.BLACK);
-		userField.setForeground(Color.GREEN);
+		userField.setBounds(105,38,155,18);
 		userField.setBorder(null);
-		userField.addActionListener(this);
-		userField.setFont(Resources.font());
-		userField.setCaretColor(Color.BLACK);
-		userField.setBounds(90,10,175,25);
-		userField.requestFocus();
-		panel.add(userField);
+		userField.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				addressField.requestFocus();
+			}
+		});
+		p.add(userField);
 		
 		addressField = new JTextField();
-		((AbstractDocument) addressField.getDocument()).setDocumentFilter(filter);
-		addressField.setBackground(Color.BLACK);
-		addressField.setForeground(Color.GREEN);
+		addressField.setBounds(105,65,155,18);
 		addressField.setBorder(null);
-		addressField.addActionListener(this);
-		addressField.setFont(Resources.font());
-		addressField.setCaretColor(Color.BLACK);
-		addressField.setBounds(90,40,175,25);
-		addressField.requestFocus();
-		panel.add(addressField);
-
-		setTitle("Choose a username...");
-		setSize(273, 75);
+		addressField.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				processInformation();
+			}
+		});
+		p.add(addressField);
+		
+		JLabel label = new JLabel(new ImageIcon(getClass().getResource("/connect.png")));
+		label.setBounds(183,90,88,23);
+		label.setForeground(Color.WHITE);
+		label.addMouseListener(new MouseListener() {
+			public void mouseReleased(MouseEvent e) {
+			}
+			public void mousePressed(MouseEvent e) {
+			}
+			public void mouseExited(MouseEvent e) {
+			}
+			public void mouseEntered(MouseEvent e) {
+			}
+			public void mouseClicked(MouseEvent e) {
+				processInformation();
+			}
+		});
+		p.add(label);
+		
+		JLabel gui = new JLabel(new ImageIcon(getClass().getResource("/login-gui.png")));
+		gui.setBounds(0,0,280,122);
+		gui.setBackground(new Color(0,0,0,0));
+		p.add(gui);
+		
+		setSize(280,122);
 		setLocationRelativeTo(null);
-		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setAlwaysOnTop(true);
-		setUndecorated(true);
+		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setResizable(false);
+		setUndecorated(true);
+		setBackground(new Color(0, 0, 0, 0));
 		setVisible(true);
-		add(panel);
+		add(p);
 	}
 	
-	public static void main(String[] args) {
-		new Login();
-	}
-	
-	private void login(String name, String address, int port) {
-		dispose();
+	public static void login(String name, String address, int port) {
 		new ClientWindow(name, address.toLowerCase(), port);
 	}
 	
-	public void actionPerformed(ActionEvent e) {
-		if(e.getSource() == userField) {
-			addressField.requestFocus();
-		}
-		if(e.getSource() == addressField) {
+	private void processInformation() {
+		if (!userField.getText().equals("") && !addressField.getText().equals("")) {
 			String name = userField.getText();
 			String address = addressField.getText();
-			if (address.isEmpty()) {
-				JOptionPane.showMessageDialog(null, "Please enter an address to connect to", "Error!", JOptionPane.ERROR_MESSAGE);
-				return;
-			}
 			int port = 8192;
+			dispose();
 			login(name, address, port);
+		} else {
+			JOptionPane.showMessageDialog(null,"Please fill requred text fields!", "Error!", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 }
