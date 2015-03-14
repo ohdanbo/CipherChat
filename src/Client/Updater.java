@@ -19,7 +19,8 @@ import javax.swing.UIManager;
 
 public class Updater {
 	
-	int currentVersion = 11;
+	int currentVersion = 11; //change this everytime a new stable version is published
+	//will push the update to everyone that is on older version.
 	int remoteVersion;
 	
 	public Updater() {
